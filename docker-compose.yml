@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: account-details-service
+    ports:
+      - 8080:8080
+      - 8000:8000
+      - 8088:8088
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2048M
+
+  mysql-docker-container:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: account_details
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: myapp-user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - /data/mysql
+
+networks:
+  default:
+    driver: bridge

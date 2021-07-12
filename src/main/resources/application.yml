@@ -1,0 +1,73 @@
+spring:
+  datasource:
+    #url: "jdbc:mysql://localhost:3306/account_details?createDatabaseIfNotExist=true&useSSL=false"
+    url: "jdbc:mysql://mysql-docker-container:3306/account_details?createDatabaseIfNotExist=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&useSSL=false"
+    driverClassName: "com.mysql.cj.jdbc.Driver"
+    username: "${MYSQL_USER:root}"
+    password: "${MYSQL_PASSWORD:root}"
+    initialization-mode: always
+    hikari:
+      initialization-fail-timeout: 0
+      connection-timeout: 5000
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.MySQL5InnoDBDialect"
+    hibernate:
+      ddl-auto: none
+      show-sql: true
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+
+
+account-details:
+  api:
+    version: "v1"
+  controlleradvice: true
+  basic-auth:
+    user: "test-user"
+    password: "P@ssword"
+    role: "ROLE_USER"
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      databaseAccessCircuitBreaker:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 4
+
+
+management:
+  server:
+    port: 8088
+  endpoints:
+    web:
+      base-path: /api/account-details
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+
+logging:
+  level:
+    root: ERROR
+    org.springframework: ERROR
+    com.anz.banking: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application-debug.log
